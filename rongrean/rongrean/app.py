@@ -27,9 +27,11 @@ url = "https://gpa.obec.go.th/reportdata/pp3-4_2566_province.json"
 data_path = "student_data"
 student_df = read_and_save_json(url, data_path)
 
-df2 = student_df.loc[:, ["schools_province", "totalmale", "totalfemale", "totalstd"]]
-app.layout = html.Div(style={"backgroundColor": colors["background"]}, 
+filtered_df = student_df.loc[:, ["schools_province", "totalmale", "totalfemale", "totalstd"]]
+# app.layout = html.Div(style={"backgroundColor": colors["background"]}, 
+app.layout = html.Div(style={"backgroundColor": colors["background"]},
     children = [
+        # Header (Content)
         html.H1(
             # children = "Mor.6 student (Graduated year 2566)"),
             children = "จำนวนนักเรียนมัธยมศึกษาปีที่ 6 ที่จบการศึกษา ปีการศึกษา 2566",
@@ -38,8 +40,17 @@ app.layout = html.Div(style={"backgroundColor": colors["background"]},
                 "color": colors["text"]
             }
         ),
+
+        # Province dropdown
+        html.Label(
+            "จังหวัด", style = {"color": colors["text"]}
+        ),
+        dcc.Dropdown(filtered_df["schools_province"]),
+
+
     ],
 )
+# ])
 
 
 
