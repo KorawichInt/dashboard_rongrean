@@ -1,8 +1,14 @@
-from dash import Dash, dcc, html
+from dash import Dash, dcc, html, Input, Output, callback
 import plotly.express as px
 import pandas as pd
 import os
 
+app = Dash(__name__)
+
+colors = {
+    'background': '#111111',
+    'text': '#7FDBFF'
+}
 
 def read_and_save_json(url, save_path):
     # check if file already exists
@@ -16,11 +22,26 @@ def read_and_save_json(url, save_path):
     df.to_json(save_path)
     print(f"Readed and saved to {save_path}")
     return df
-    
+
+url = "https://gpa.obec.go.th/reportdata/pp3-4_2566_province.json"
+data_path = "student_data"
+student_df = read_and_save_json(url, data_path)
+
+df2 = student_df.loc[:, ["schools_province", "totalmale", "totalfemale", "totalstd"]]
+app.layout = html.Div(style={"backgroundColor": colors["background"]}, 
+    children = [
+        html.H1(
+            # children = "Mor.6 student (Graduated year 2566)"),
+            children = "จำนวนนักเรียนมัธยมศึกษาปีที่ 6 ที่จบการศึกษา ปีการศึกษา 2566",
+            style = {
+                "textAlign": "center",
+                "color": colors["text"]
+            }
+        ),
+    ],
+)
+
 
 
 if __name__ == "__main__":
-    url = "https://gpa.obec.go.th/reportdata/pp3-4_2566_province.json"
-    data_path = "student_data"
-    student_df = read_and_save_json(url, data_path)
-    print(student_df)
+    app.run(debug=True)
