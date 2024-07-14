@@ -5,14 +5,16 @@ import os
 
 
 def read_and_save_json(url, save_path):
-    # if os.path.exists(save_path):
-    #     print(f"File already exists at {save_path}")
-    #     return
+    # check if file already exists
+    if os.path.exists(save_path):
+        print(f"File already exists at {save_path}")
+        return
     
+    # convert json to dataframe and save json file
     df = pd.read_json(url)
-    print(df)
-    # df.to_json(save_path)
-    pass
+    df.to_json(save_path)
+    print(f"Readed and saved to {save_path}")
+    
 
 
 if __name__ == "__main__":
