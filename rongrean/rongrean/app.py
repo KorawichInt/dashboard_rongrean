@@ -24,26 +24,26 @@ filtered_df = student_df.loc[:, ["schools_province", "totalmale", "totalfemale",
 filtered_df.columns = ["จังหวัด", "จำนวนนักเรียนชาย", "จำนวนนักเรียนหญิง", "จำนวนนักเรียนทั้งหมด"]
 
 app.layout = html.Div([
-    html.H2(
-        "จำนวนนักเรียนมัธยมศึกษาปีที่ 6 ที่จบการศึกษา ปีการศึกษา 2566",
-        style={
-            'textAlign': 'center',
-        }
-    ),
+    html.H2("จำนวนนักเรียนมัธยมศึกษาปีที่ 6 ที่จบการศึกษา ปีการศึกษา 2566"),
     dash_table.DataTable(
-        data=filtered_df.to_dict('records'), 
+        data=filtered_df.to_dict('records'),
         page_size=5,
         style_cell={'textAlign': 'center'}
     ),
 
-    html.Label("จังหวัดที่ต้องการแสดง", style={'margin-top': '20px'}),
-    dcc.Dropdown(
-        id='dropdown-selection',
-        options=[{'label': province, 'value': province} for province in filtered_df['จังหวัด'].unique()],
-        value='กรุงเทพมหานคร'  # default
+    html.Div(
+        [
+            html.Label("จังหวัดที่ต้องการแสดง"),
+            dcc.Dropdown(
+                id='dropdown-selection',
+                options=[{'label': province, 'value': province} for province in filtered_df['จังหวัด'].unique()],
+                value='กรุงเทพมหานคร'  # default
+            ),
+        ],
+        style={'margin-bottom': '30px'}
     ),
 
-    html.Label("ตัวเลือกที่ต้องการแสดง", style={'margin-top': '20px'}),
+    html.Label("ตัวเลือกที่ต้องการแสดง"),
     dcc.Checklist(
         id='checklist-selection',
         options=[
@@ -54,7 +54,7 @@ app.layout = html.Div([
         value=['จำนวนนักเรียนทั้งหมด']  # default
     ),
 
-    dcc.Graph(id="graph-content")
+    dcc.Graph(id="graph-content", style={'width': '100%'})
 ])
 
 @callback(
@@ -65,17 +65,25 @@ app.layout = html.Div([
 def update_graph(selected_province, selected_display):
     filtered_province_df = filtered_df[filtered_df["จังหวัด"] == selected_province]
 
-    # Melt the DataFrame to have 'Category' and 'Count' columns for plotting
     melted_df = filtered_province_df.melt(id_vars=["จังหวัด"], value_vars=selected_display,
                                           var_name='Category', value_name='Count')
 
-    # Create a bar graph with dynamic title and axes
     fig = px.bar(
         melted_df,
         x='Category',
         y='Count',
-        title=f"จำนวนนักเรียนที่เรียนจบในจังหวัด {selected_province}",
-        labels={'Category': 'ประเภทนักเรียน', 'Count': 'จำนวนนักเรียน'}
+        labels={'Category': 'ประเภทนักเรียน', 'Count': 'จำนวนนักเรียน'},
+    )
+    
+    fig.update_layout(
+        title={
+            'text': f"จำนวนนักเรียนที่เรียนจบในจังหวัด {selected_province}",
+            'y':0.9,
+            'x':0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'
+        },
+        width=800
     )
     
     return fig
