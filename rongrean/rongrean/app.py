@@ -21,10 +21,13 @@ data_path = "student_data"
 student_df = read_and_save_json(url, data_path)
 
 filtered_df = student_df.loc[:, ["schools_province", "totalmale", "totalfemale", "totalstd"]]
-filtered_df.columns = ["จังหวัด", "จำนวนนักเรียนชาย", "จำนวนนักเรียนหญิง", "จำนวนนักเรียนทั้งหมด"]
+filtered_df.columns = ["จังหวัด", "นักเรียนชาย", "นักเรียนหญิง", "นักเรียนทั้งหมด"]
 
 app.layout = html.Div([
-    html.H2("จำนวนนักเรียนมัธยมศึกษาปีที่ 6 ที่จบการศึกษา ปีการศึกษา 2566"),
+    html.H2(
+        "จำนวนนักเรียนมัธยมศึกษาปีที่ 6 ที่จบการศึกษา ปีการศึกษา 2566", 
+        style={'textAlign': 'center'}
+    ),
     dash_table.DataTable(
         data=filtered_df.to_dict('records'),
         page_size=5,
@@ -43,15 +46,21 @@ app.layout = html.Div([
         style={'margin-bottom': '30px'}
     ),
 
-    html.Label("ตัวเลือกที่ต้องการแสดง"),
-    dcc.Checklist(
-        id='checklist-selection',
-        options=[
-            {'label': 'นักเรียนทั้งหมด', 'value': 'จำนวนนักเรียนทั้งหมด'},
-            {'label': 'นักเรียนชาย', 'value': 'จำนวนนักเรียนชาย'},
-            {'label': 'นักเรียนหญิง', 'value': 'จำนวนนักเรียนหญิง'}
+    html.Div(
+        [
+            html.Label("ตัวเลือกที่ต้องการแสดง"),
+            dcc.Checklist(
+                id='checklist-selection',
+                options=[
+                    {'label': 'นักเรียนทั้งหมด', 'value': 'นักเรียนทั้งหมด'},
+                    {'label': 'นักเรียนชาย', 'value': 'นักเรียนชาย'},
+                    {'label': 'นักเรียนหญิง', 'value': 'นักเรียนหญิง'}
+                ],
+                value=['นักเรียนทั้งหมด'],  # default
+                # inline=True
+            ),
         ],
-        value=['จำนวนนักเรียนทั้งหมด']  # default
+        style={'margin-bottom': '10px'}
     ),
 
     dcc.Graph(id="graph-content", style={'width': '100%'})
@@ -62,6 +71,7 @@ app.layout = html.Div([
     [Input('dropdown-selection', 'value'),
      Input('checklist-selection', 'value')]
 )
+
 def update_graph(selected_province, selected_display):
     filtered_province_df = filtered_df[filtered_df["จังหวัด"] == selected_province]
 
@@ -72,21 +82,30 @@ def update_graph(selected_province, selected_display):
         melted_df,
         x='Category',
         y='Count',
-        labels={'Category': 'ประเภทนักเรียน', 'Count': 'จำนวนนักเรียน'},
+        labels={'Category': 'ประเภทนักเรียน', 'Count': 'จำนวนนักเรียน (คน)'},
     )
     
     fig.update_layout(
         title={
             'text': f"จำนวนนักเรียนที่เรียนจบในจังหวัด {selected_province}",
+            'font': {'size':20, 'weight':'normal'},
+            'pad':{'t':-20},
             'y':0.9,
             'x':0.5,
             'xanchor': 'center',
             'yanchor': 'top'
         },
-        width=800
+        showlegend=False
+        # width=800,
+        # bargap=0.8
+    )
+
+    fig.update_traces(
+        width=0.2
     )
     
     return fig
+
 
 if __name__ == "__main__":
     app.run(debug=True)
